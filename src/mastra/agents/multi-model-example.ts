@@ -21,20 +21,21 @@ export const geminiAgent = new Agent({
 
 // Ejemplo 3: Agente con Ollama (local)
 // Nota: Ollama debe estar corriendo en http://localhost:11434
-const ollamaProvider = createOpenAICompatible({
-  baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434",
-  apiKey: "ollama", // Ollama no requiere API key real, pero el SDK lo necesita
-});
+// const ollamaProvider = createOpenAICompatible({
+//   baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434",
+//   apiKey: "ollama", // Ollama no requiere API key real, pero el SDK lo necesita
+// });
 
-export const ollamaAgent = new Agent({
-  name: "Ollama Agent",
-  instructions: "Eres un asistente útil que responde preguntas.",
-  model: ollamaProvider("llama3.2"), // Cambia por el modelo que tengas instalado
-  tools: {},
-});
+// export const ollamaAgent = new Agent({
+//   name: "Ollama Agent",
+//   instructions: "Eres un asistente útil que responde preguntas.",
+//   model: ollamaProvider("llama3.2"), // Cambia por el modelo que tengas instalado
+//   tools: {},
+// });
 
 // Ejemplo 4: Agente con DeepSeek
 const deepseekProvider = createOpenAICompatible({
+  name: "deepseek",
   baseURL: process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com",
   apiKey: process.env.DEEPSEEK_API_KEY!,
 });
@@ -57,8 +58,8 @@ export const flexibleAgent = new Agent({
     switch (preferredModel) {
       case "gemini":
         return google("gemini-2.0-flash-exp");
-      case "ollama":
-        return ollamaProvider("llama3.2");
+      // case "ollama":
+      //   return ollamaProvider("llama3.2");
       case "deepseek":
         return deepseekProvider("deepseek-chat");
       default:

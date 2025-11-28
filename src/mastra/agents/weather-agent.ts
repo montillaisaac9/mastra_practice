@@ -3,6 +3,7 @@ import { Memory } from '@mastra/memory';
 import { LibSQLStore } from '@mastra/libsql';
 import { weatherTool } from '../tools/weather-tool';
 import { scorers } from '../scorers/weather-scorer';
+import { getDynamicModel } from '../config/model-providers';
 
 export const weatherAgent = new Agent({
   name: 'Weather Agent',
@@ -20,7 +21,27 @@ export const weatherAgent = new Agent({
 
       Use the weatherTool to fetch current weather data.
 `,
-  model: 'openai/gpt-4o-mini',
+  // Modelo dinámico: puede cambiar según el contexto o preferencias
+  // Por defecto usa OpenAI GPT-4o-mini, pero puede usar Gemini, DeepSeek, etc.
+  model: ({ runtimeContext }) => {
+    const preferredModel = runtimeContext?.get("preferredModel") as string | undefined;
+    const modelProvider = runtimeContext?.get("modelProvider") as string | undefined;
+    
+    // Si se especifica un modelo completo (provider/model)
+    if (preferredModel) {
+      return getDynamicModel(preferredModel, "openai", "gpt-4o-mini");
+    }
+    
+    // Si solo se especifica el proveedor, usar el modelo por defecto
+    if (modelProvider) {
+      return getDynamicModel(undefined, modelProvider as any, "gpt-4o-mini");
+    }
+    
+    // Por defecto: usar OpenAI GPT-4o-mini
+    // Puedes cambiar el modelo por defecto aquí o usar variables de entorno
+    const defaultModel = process.env.WEATHER_AGENT_MODEL || "openai/gpt-4o-mini";
+    return getDynamicModel(defaultModel, "openai", "gpt-4o-mini");
+  },
   tools: { weatherTool },
   scorers: {
     toolCallAppropriateness: {
